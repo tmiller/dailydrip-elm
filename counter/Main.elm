@@ -17,20 +17,24 @@ type Msg
     | Decrement
 
 
+increment : Model -> Model
+increment model =
+    { model | counter = model.counter + 1, inc = model.inc + 1 }
+
+
+decrement : Model -> Model
+decrement model =
+    { model | counter = model.counter - 1, dec = model.dec + 1 }
+
+
 update : Msg -> Model -> Model
-update msg model =
+update msg =
     case msg of
         Increment ->
-            { model
-                | counter = model.counter + 1
-                , inc = model.inc + 1
-            }
+            increment
 
         Decrement ->
-            { model
-                | counter = model.counter - 1
-                , dec = model.dec + 1
-            }
+            decrement
 
 
 view : Model -> Html Msg
