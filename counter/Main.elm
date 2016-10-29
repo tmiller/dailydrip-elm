@@ -6,9 +6,9 @@ import Html.App as App
 
 
 type alias Model =
-    { counter : Int
-    , inc : Int
-    , dec : Int
+    { count : Int
+    , increment : Int
+    , decrement : Int
     }
 
 
@@ -17,14 +17,22 @@ type Msg
     | Decrement
 
 
+initialModel : Model
+initialModel =
+    { count = 0
+    , increment = 0
+    , decrement = 0
+    }
+
+
 increment : Model -> Model
 increment model =
-    { model | counter = model.counter + 1, inc = model.inc + 1 }
+    { model | count = model.count + 1, increment = model.increment + 1 }
 
 
 decrement : Model -> Model
 decrement model =
-    { model | counter = model.counter - 1, dec = model.dec + 1 }
+    { model | count = model.count - 1, decrement = model.decrement + 1 }
 
 
 update : Msg -> Model -> Model
@@ -41,17 +49,17 @@ view : Model -> Html Msg
 view model =
     div []
         [ button [ onClick Increment ] [ text "+" ]
-        , div [] [ text (toString model.counter) ]
+        , div [] [ text (toString model.count) ]
         , button [ onClick Decrement ] [ text "-" ]
-        , h3 [] [ text ("Inc: " ++ toString model.inc) ]
-        , h3 [] [ text ("Dec: " ++ toString model.dec) ]
+        , h3 [] [ text ("+ clicked " ++ (toString model.increment) ++ " times") ]
+        , h3 [] [ text ("- clicked " ++ (toString model.decrement) ++ " times") ]
         ]
 
 
 main : Program Never
 main =
     App.beginnerProgram
-        { model = { inc = 0, dec = 0, counter = 0 }
+        { model = initialModel
         , view = view
         , update = update
         }
