@@ -1,5 +1,101 @@
 module Main exposing (..)
 
+import Html exposing (..)
+import Html.App as App
+import Html.Attributes exposing (..)
+
+
+type alias Todo =
+    { title : String
+    , completed : Bool
+    , editing : Bool
+    }
+
+
+type FilterState
+    = All
+    | Active
+    | Completed
+
+
+type alias Model =
+    { todos : List Todo
+    , todo : Todo
+    , filter : FilterState
+    }
+
+
+type Msg
+    = Complete Todo
+    | Delete Todo
+    | Filter FilterState
+
+
+initialModel : Model
+initialModel =
+    { todos =
+        [ { title = "Milk and Cookies"
+          , completed = True
+          , editing = False
+          }
+        ]
+    , todo =
+        { title = ""
+        , completed = False
+        , editing = False
+        }
+    , filter = All
+    }
+
+
+update : Msg -> Model -> Model
+update msg model =
+    model
+
+
+view : Model -> Html Msg
+view model =
+    div []
+        [ node "style" [ type' "text/css" ] [ text styles ]
+        , section
+            [ class "todoapp"
+            ]
+            [ header [ class "header" ]
+                [ h1 [] [ text "todos" ]
+                , input
+                    [ class "new-todo"
+                    , placeholder "What needs to be done?"
+                    , autofocus True
+                    ]
+                    []
+                ]
+            ]
+        , section [ class "main" ]
+            [ ul [ class "todo-list" ]
+                (List.map todoView model.todos)
+            ]
+        ]
+
+
+todoView : Todo -> Html Msg
+todoView todo =
+    li [ classList [ ( "completed", todo.completed ) ] ]
+        [ div [ class "view" ]
+            [ input [ class "toggle", type' "checkbox", checked todo.completed ] []
+            , label [] [ text todo.title ]
+            , button [ class "destroy" ] []
+            ]
+        ]
+
+
+main : Program Never
+main =
+    App.beginnerProgram
+        { model = initialModel
+        , update = update
+        , view = view
+        }
+
 
 styles : String
 styles =
