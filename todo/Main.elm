@@ -63,7 +63,7 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         Add todo ->
-            { model | todos = todo :: model.todos }
+            { model | todos = todo :: model.todos, todo = initialModel.todo }
 
         Complete todo ->
             model
@@ -83,9 +83,9 @@ is13 code =
         Err "not the right key code"
 
 
-handleKeyPress : Json.Decoder Msg
-handleKeyPress =
-    Json.map (always (Add mockTodo))
+handleKeyPress : Model -> Json.Decoder Msg
+handleKeyPress model =
+    Json.map (always (Add model.todo))
         (Json.customDecoder keyCode is13)
 
 
@@ -103,7 +103,7 @@ view model =
                     , placeholder "What needs to be done?"
                     , value model.todo.title
                     , autofocus True
-                    , on "keypress" handleKeyPress
+                    , on "keypress" (handleKeyPress model)
                     ]
                     []
                 ]
