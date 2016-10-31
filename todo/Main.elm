@@ -3,6 +3,8 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
+import Html.Events exposing (on, keyCode)
+import Json.Decode as JSon
 
 
 type alias Todo =
