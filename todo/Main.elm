@@ -28,7 +28,8 @@ type alias Model =
 
 
 type Msg
-    = Complete Todo
+    = Add Todo
+    | Complete Todo
     | Delete Todo
     | Filter FilterState
 
