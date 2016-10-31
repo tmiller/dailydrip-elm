@@ -33,6 +33,14 @@ type Msg
     | Filter FilterState
 
 
+mockTodo : Todo
+mockTodo =
+    { title = "A mock todo..."
+    , completed = False
+    , editing = False
+    }
+
+
 initialModel : Model
 initialModel =
     { todos =
@@ -52,7 +60,18 @@ initialModel =
 
 update : Msg -> Model -> Model
 update msg model =
-    model
+    case msg of
+        Add todo ->
+            model
+
+        Complete todo ->
+            model
+
+        Delete todo ->
+            model
+
+        Filter filterState ->
+            model
 
 
 view : Model -> Html Msg
