@@ -63,7 +63,7 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         Add todo ->
-            model
+            { model | todos = todo :: model.todos }
 
         Complete todo ->
             model
@@ -73,6 +73,11 @@ update msg model =
 
         Filter filterState ->
             model
+
+
+handleKeyPress : Json.Decoder Msg
+handleKeyPress =
+    Json.succeed (Add mockTodo)
 
 
 view : Model -> Html Msg
@@ -88,6 +93,7 @@ view model =
                     [ class "new-todo"
                     , placeholder "What needs to be done?"
                     , autofocus True
+                    , on "keypress" handleKeyPress
                     ]
                     []
                 ]
