@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, keyCode)
+import Html.Events exposing (on, keyCode, onInput)
 import Json.Decode as Json
 
 
@@ -31,6 +31,7 @@ type Msg
     = Add Todo
     | Complete Todo
     | Delete Todo
+    | Update String
     | Filter FilterState
 
 
@@ -71,6 +72,13 @@ update msg model =
         Delete todo ->
             model
 
+        Update text ->
+            let
+                todo =
+                    model.todo
+            in
+                { model | todo = { todo | title = text } }
+
         Filter filterState ->
             model
 
@@ -104,6 +112,7 @@ view model =
                     , value model.todo.title
                     , autofocus True
                     , on "keypress" (handleKeyPress model)
+                    , onInput Update
                     ]
                     []
                 ]
