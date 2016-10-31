@@ -35,14 +35,6 @@ type Msg
     | Filter FilterState
 
 
-mockTodo : Todo
-mockTodo =
-    { title = "A mock todo..."
-    , completed = False
-    , editing = False
-    }
-
-
 initialModel : Model
 initialModel =
     { todos =
