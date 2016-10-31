@@ -75,9 +75,18 @@ update msg model =
             model
 
 
+is13 : Int -> Result String ()
+is13 code =
+    if code == 13 then
+        Ok ()
+    else
+        Err "not the right key code"
+
+
 handleKeyPress : Json.Decoder Msg
 handleKeyPress =
-    Json.succeed (Add mockTodo)
+    Json.map (always (Add mockTodo))
+        (Json.customDecoder keyCode is13)
 
 
 view : Model -> Html Msg
@@ -92,6 +101,7 @@ view model =
                 , input
                     [ class "new-todo"
                     , placeholder "What needs to be done?"
+                    , value model.todo.title
                     , autofocus True
                     , on "keypress" handleKeyPress
                     ]
