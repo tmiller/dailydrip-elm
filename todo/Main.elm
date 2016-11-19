@@ -11,6 +11,7 @@ type alias Todo =
     { title : String
     , completed : Bool
     , editing : Bool
+    , identifier : Int
     }
 
 
@@ -24,6 +25,7 @@ type alias Model =
     { todos : List Todo
     , todo : Todo
     , filter : FilterState
+    , nextIdentifier : Int
     }
 
 
@@ -40,6 +42,7 @@ newTodo =
     { title = ""
     , completed = False
     , editing = False
+    , identifier = 0
     }
 
 
@@ -49,10 +52,12 @@ initialModel =
         [ { title = "Milk and Cookies"
           , completed = True
           , editing = False
+          , identifier = 1
           }
         ]
-    , todo = newTodo
+    , todo = { newTodo | identifier = 2 }
     , filter = All
+    , nextIdentifier = 3
     }
 
 
@@ -63,6 +68,7 @@ update msg model =
             { model
                 | todos = model.todo :: model.todos
                 , todo = newTodo
+                , nextIdentifier = model.nextIdentifier + 1
             }
 
         Complete todo ->
