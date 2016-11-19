@@ -35,6 +35,14 @@ type Msg
     | Filter FilterState
 
 
+newTodo : Todo
+newTodo =
+    { title = ""
+    , completed = False
+    , editing = False
+    }
+
+
 initialModel : Model
 initialModel =
     { todos =
@@ -43,11 +51,7 @@ initialModel =
           , editing = False
           }
         ]
-    , todo =
-        { title = ""
-        , completed = False
-        , editing = False
-        }
+    , todo = newTodo
     , filter = All
     }
 
@@ -56,7 +60,10 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         Add ->
-            { model | todos = model.todo :: model.todos }
+            { model
+                | todos = model.todo :: model.todos
+                , todo = newTodo
+            }
 
         Complete todo ->
             model
