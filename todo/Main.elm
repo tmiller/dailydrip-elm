@@ -28,7 +28,7 @@ type alias Model =
 
 
 type Msg
-    = Add Todo
+    = Add
     | Complete Todo
     | Delete Todo
     | Update String
@@ -55,8 +55,8 @@ initialModel =
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        Add todo ->
-            { model | todos = todo :: model.todos, todo = initialModel.todo }
+        Add ->
+            { model | todos = model.todo :: model.todos }
 
         Complete todo ->
             model
@@ -85,8 +85,7 @@ is13 code =
 
 handleKeyPress : Model -> Json.Decoder Msg
 handleKeyPress model =
-    Json.map (always (Add model.todo))
-        (Json.customDecoder keyCode is13)
+    Json.map (always Add) (Json.customDecoder keyCode is13)
 
 
 view : Model -> Html Msg
