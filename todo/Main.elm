@@ -195,11 +195,22 @@ footerView model =
             , text " items left"
             ]
         , ul [ class "filters" ]
-            [ li [] [ a [ class "selected", href "#" ] [ text "All" ] ]
-            , li [] [ a [ href "#" ] [ text "Active" ] ]
-            , li [] [ a [ href "#" ] [ text "Completed" ] ]
+            [ filterItemView model All
+            , filterItemView model Active
+            , filterItemView model Completed
             ]
         , button [ class "clear-completed" ] [ text "Clear Completed" ]
+        ]
+
+
+filterItemView : Model -> FilterState -> Html Msg
+filterItemView model filterState =
+    li []
+        [ a
+            [ classList [ ( "selected", (model.filter == filterState) ) ]
+            , href "#"
+            ]
+            [ text (toString filterState) ]
         ]
 
 
