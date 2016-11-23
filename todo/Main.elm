@@ -3,7 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, keyCode, onInput, onCheck)
+import Html.Events exposing (on, keyCode, onInput, onCheck, onClick)
 import Json.Decode as Json
 
 
@@ -107,7 +107,7 @@ update msg model =
                 { model | todo = { todo | title = text } }
 
         Filter filterState ->
-            model
+            { model | filter = filterState }
 
 
 is13 : Int -> Result String ()
@@ -209,6 +209,7 @@ filterItemView model filterState =
         [ a
             [ classList [ ( "selected", (model.filter == filterState) ) ]
             , href "#"
+            , onClick (Filter filterState)
             ]
             [ text (toString filterState) ]
         ]
