@@ -127,25 +127,30 @@ view : Model -> Html Msg
 view model =
     div []
         [ node "style" [ type' "text/css" ] [ text styles ]
-        , section
-            [ class "todoapp"
-            ]
-            [ header [ class "header" ]
-                [ h1 [] [ text "todos" ]
-                , input
-                    [ class "new-todo"
-                    , placeholder "What needs to be done?"
-                    , value model.todo.title
-                    , autofocus True
-                    , on "keypress" (handleKeyPress model)
-                    , onInput Update
-                    ]
-                    []
-                ]
-            ]
+        , headerView model
         , section [ class "main" ]
             [ ul [ class "todo-list" ]
                 (List.map todoView model.todos)
+            ]
+        ]
+
+
+headerView : Model -> Html Msg
+headerView model =
+    section
+        [ class "todoapp"
+        ]
+        [ header [ class "header" ]
+            [ h1 [] [ text "todos" ]
+            , input
+                [ class "new-todo"
+                , placeholder "What needs to be done?"
+                , value model.todo.title
+                , autofocus True
+                , on "keypress" (handleKeyPress model)
+                , onInput Update
+                ]
+                []
             ]
         ]
 
