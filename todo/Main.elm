@@ -208,7 +208,7 @@ footerView : Model -> Html Msg
 footerView model =
     footer [ class "footer" ]
         [ span [ class "todo-count" ]
-            [ strong [] [ text (toString (List.length model.todos)) ]
+            [ strong [] [ text (toString (List.length (List.filter (\todo -> not todo.completed) model.todos))) ]
             , text " items left"
             ]
         , ul [ class "filters" ]
