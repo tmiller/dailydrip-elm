@@ -129,6 +129,7 @@ view model =
         [ node "style" [ type' "text/css" ] [ text styles ]
         , headerView model
         , mainView model
+        , footerView model
         ]
 
 
@@ -184,6 +185,16 @@ todoView todo =
                 , button [ class "destroy" ] []
                 ]
             ]
+
+
+footerView : Model -> Html Msg
+footerView model =
+    footer [ class "footer" ]
+        [ span [ class "todo-count" ]
+            [ strong [] [ text (toString (List.length model.todos)) ]
+            , text " items left"
+            ]
+        ]
 
 
 main : Program Never
