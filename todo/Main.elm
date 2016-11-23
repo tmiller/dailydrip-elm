@@ -194,6 +194,11 @@ footerView model =
             [ strong [] [ text (toString (List.length model.todos)) ]
             , text " items left"
             ]
+        , ul [ class "filters" ]
+            [ li [] [ a [ class "selected", href "#" ] [ text "All" ] ]
+            , li [] [ a [ href "#" ] [ text "Active" ] ]
+            , li [] [ a [ href "#" ] [ text "Completed" ] ]
+            ]
         ]
 
 
