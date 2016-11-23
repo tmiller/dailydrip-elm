@@ -128,10 +128,7 @@ view model =
     div []
         [ node "style" [ type' "text/css" ] [ text styles ]
         , headerView model
-        , section [ class "main" ]
-            [ ul [ class "todo-list" ]
-                (List.map todoView model.todos)
-            ]
+        , mainView model
         ]
 
 
@@ -152,6 +149,14 @@ headerView model =
                 ]
                 []
             ]
+        ]
+
+
+mainView : Model -> Html Msg
+mainView model =
+    section [ class "main" ]
+        [ ul [ class "todo-list" ]
+            (List.map todoView model.todos)
         ]
 
 
