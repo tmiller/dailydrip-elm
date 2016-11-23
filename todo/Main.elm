@@ -123,6 +123,23 @@ handleKeyPress model =
     Json.map (always Add) (Json.customDecoder keyCode is13)
 
 
+filteredTodos : Model -> List Todo
+filteredTodos model =
+    let
+        todoFilter =
+            case model.filter of
+                All ->
+                    (\_ -> True)
+
+                Active ->
+                    (\todo -> not todo.completed)
+
+                Completed ->
+                    (\todo -> todo.completed)
+    in
+        List.filter todoFilter model.todos
+
+
 view : Model -> Html Msg
 view model =
     div []
@@ -157,7 +174,7 @@ mainView : Model -> Html Msg
 mainView model =
     section [ class "main" ]
         [ ul [ class "todo-list" ]
-            (List.map todoView model.todos)
+            (List.map todoView (filteredTodos model))
         ]
 
 
