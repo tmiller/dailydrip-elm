@@ -199,6 +199,7 @@ footerView model =
             , li [] [ a [ href "#" ] [ text "Active" ] ]
             , li [] [ a [ href "#" ] [ text "Completed" ] ]
             ]
+        , button [ class "clear-completed" ] [ text "Clear Completed" ]
         ]
 
 
