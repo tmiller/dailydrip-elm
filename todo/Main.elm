@@ -64,6 +64,20 @@ initialModel =
     }
 
 
+updateTodo : Model -> Todo -> Bool -> Model
+updateTodo model todo complete =
+    let
+        changeTodo thisTodo =
+            if thisTodo.identifier == todo.identifier then
+                { todo | completed = complete }
+            else
+                thisTodo
+    in
+        { model
+            | todos = List.map changeTodo model.todos
+        }
+
+
 update : Msg -> Model -> Model
 update msg model =
     case msg of
@@ -78,28 +92,10 @@ update msg model =
             }
 
         Complete todo ->
-            let
-                updateTodo thisTodo =
-                    if thisTodo.identifier == todo.identifier then
-                        { todo | completed = True }
-                    else
-                        thisTodo
-            in
-                { model
-                    | todos = List.map updateTodo model.todos
-                }
+            updateTodo model todo True
 
         Uncomplete todo ->
-            let
-                updateTodo thisTodo =
-                    if thisTodo.identifier == todo.identifier then
-                        { todo | completed = False }
-                    else
-                        thisTodo
-            in
-                { model
-                    | todos = List.map updateTodo model.todos
-                }
+            updateTodo model todo False
 
         Delete todo ->
             { model
