@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.App as App
+import Html
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, keyCode, onInput, onCheck, onClick)
 import Json.Decode as Json
@@ -31,6 +31,7 @@ type alias Model =
 
 type Msg
     = Add
+    | NoOp
     | Complete Todo
     | Uncomplete Todo
     | Delete Todo
@@ -66,6 +67,9 @@ initialModel =
 update : Msg -> Model -> Model
 update msg model =
     case msg of
+        NoOp ->
+            model
+
         Add ->
             { model
                 | todos = model.todo :: model.todos
@@ -118,17 +122,17 @@ update msg model =
             { model | filter = filterState }
 
 
-is13 : Int -> Result String ()
-is13 code =
+is13 : Msg -> Int -> Msg
+is13 msg code =
     if code == 13 then
-        Ok ()
+        msg
     else
-        Err "not the right key code"
+        NoOp
 
 
-handleKeyPress : Model -> Json.Decoder Msg
-handleKeyPress model =
-    Json.map (always Add) (Json.customDecoder keyCode is13)
+onEnterKeyPress : Msg -> Attribute Msg
+onEnterKeyPress msg =
+    on "keypress" (Json.map (is13 msg) (keyCode))
 
 
 filteredTodos : Model -> List Todo
@@ -151,7 +155,7 @@ filteredTodos model =
 view : Model -> Html Msg
 view model =
     div []
-        [ node "style" [ type' "text/css" ] [ text styles ]
+        [ node "style" [ type_ "text/css" ] [ text styles ]
         , headerView model
         , mainView model
         , footerView model
@@ -170,7 +174,7 @@ headerView model =
                 , placeholder "What needs to be done?"
                 , value model.todo.title
                 , autofocus True
-                , on "keypress" (handleKeyPress model)
+                , onEnterKeyPress Add
                 , onInput Update
                 ]
                 []
@@ -201,7 +205,7 @@ todoView todo =
             [ div [ class "view" ]
                 [ input
                     [ class "toggle"
-                    , type' "checkbox"
+                    , type_ "checkbox"
                     , checked todo.completed
                     , onCheck handleComplete
                     ]
@@ -248,9 +252,9 @@ filterItemView model filterState =
         ]
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    App.beginnerProgram
+    Html.beginnerProgram
         { model = initialModel
         , update = update
         , view = view
