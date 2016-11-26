@@ -31,7 +31,6 @@ type alias Model =
 
 type Msg
     = Add
-    | NoOp
     | Complete Todo
     | Uncomplete Todo
     | Delete Todo
@@ -81,9 +80,6 @@ updateTodo model todo complete =
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        NoOp ->
-            model
-
         Add ->
             { model
                 | todos = model.todo :: model.todos
@@ -118,17 +114,17 @@ update msg model =
             { model | filter = filterState }
 
 
-is13 : Msg -> Int -> Msg
-is13 msg code =
+enterKey : Int -> Json.Decoder Int
+enterKey code =
     if code == 13 then
-        msg
+        Json.succeed code
     else
-        NoOp
+        Json.fail "not the enter key"
 
 
 onEnterKeyPress : Msg -> Attribute Msg
 onEnterKeyPress msg =
-    on "keypress" (Json.map (is13 msg) (keyCode))
+    on "keypress" (Json.map (always msg) (keyCode |> Json.andThen enterKey))
 
 
 filteredTodos : Model -> List Todo
