@@ -2,7 +2,6 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Events exposing (onClick)
-import Html.App as App
 
 
 type alias Model =
@@ -17,12 +16,14 @@ type Msg
     | Decrement
 
 
-initialModel : Model
-initialModel =
-    { count = 0
-    , increment = 0
-    , decrement = 0
-    }
+init : ( Model, Cmd Msg )
+init =
+    ( { count = 0
+      , increment = 0
+      , decrement = 0
+      }
+    , Cmd.none
+    )
 
 
 increment : Model -> Model
@@ -35,14 +36,14 @@ decrement model =
     { model | count = model.count - 1, decrement = model.decrement + 1 }
 
 
-update : Msg -> Model -> Model
-update msg =
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
     case msg of
         Increment ->
-            increment
+            ( increment model, Cmd.none )
 
         Decrement ->
-            decrement
+            ( decrement model, Cmd.none )
 
 
 view : Model -> Html Msg
@@ -56,10 +57,16 @@ view model =
         ]
 
 
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
+
 main : Program Never Model Msg
 main =
-    App.beginnerProgram
-        { model = initialModel
+    program
+        { init = init
         , view = view
         , update = update
+        , subscriptions = subscriptions
         }
