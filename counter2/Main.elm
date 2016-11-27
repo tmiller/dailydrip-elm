@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Html exposing (..)
 import Html.Events exposing (onClick)
@@ -14,6 +14,7 @@ type alias Model =
 type Msg
     = Increment
     | Decrement
+    | NoOp
 
 
 init : ( Model, Cmd Msg )
@@ -45,6 +46,9 @@ update msg model =
         Decrement ->
             ( decrement model, Cmd.none )
 
+        NoOp ->
+            ( model, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
@@ -57,9 +61,22 @@ view model =
         ]
 
 
+port jsMsgs : (Int -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    jsMsgs mapJsMsg
+
+
+mapJsMsg : Int -> Msg
+mapJsMsg int =
+    case int of
+        1 ->
+            Increment
+
+        _ ->
+            NoOp
 
 
 main : Program Never Model Msg
