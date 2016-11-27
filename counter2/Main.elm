@@ -27,24 +27,18 @@ init =
     )
 
 
-increment : Model -> Model
-increment model =
-    { model | count = model.count + 1, increment = model.increment + 1 }
-
-
-decrement : Model -> Model
-decrement model =
-    { model | count = model.count - 1, decrement = model.decrement + 1 }
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Increment ->
-            ( increment model, Cmd.none )
+            ( { model | count = model.count + 1, increment = model.increment + 1 }
+            , increment ()
+            )
 
         Decrement ->
-            ( decrement model, Cmd.none )
+            ( { model | count = model.count - 1, decrement = model.decrement + 1 }
+            , Cmd.none
+            )
 
         NoOp ->
             ( model, Cmd.none )
@@ -62,6 +56,9 @@ view model =
 
 
 port jsMsgs : (Int -> msg) -> Sub msg
+
+
+port increment : () -> Cmd msg
 
 
 subscriptions : Model -> Sub Msg
