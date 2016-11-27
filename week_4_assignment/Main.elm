@@ -1,8 +1,9 @@
 port module Main exposing (..)
 
 import Html exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
 import Html.Attributes exposing (..)
+import String exposing (toInt)
 
 
 main : Program Never Model Msg
@@ -22,6 +23,8 @@ type alias Model =
 type Msg
     = NoOp
     | Increment Bool
+    | SendCount
+    | SetCount String
 
 
 init : ( Model, Cmd Msg )
@@ -42,6 +45,21 @@ update msg model =
             , Cmd.none
             )
 
+        SendCount ->
+            ( model, sendCount model.count )
+
+        SetCount strCount ->
+            let
+                count =
+                    case toInt strCount of
+                        Err _ ->
+                            model.count
+
+                        Ok newCount ->
+                            newCount
+            in
+                ( { model | count = count }, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
@@ -49,17 +67,19 @@ view model =
         [ input
             [ type_ "text"
             , value <| toString model.count
+            , onInput SetCount
             ]
             []
+        , button [ onClick SendCount ] [ text "Send Count" ]
         ]
 
 
-port messages : (Bool -> msg) -> Sub msg
+port incrementCount : (Bool -> msg) -> Sub msg
 
 
-port increment : () -> Cmd msg
+port sendCount : Int -> Cmd msg
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    messages Increment
+    incrementCount Increment

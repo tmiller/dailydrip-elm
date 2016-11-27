@@ -6,7 +6,11 @@
     <script type="text/javascript" src="elm.js"></script>
     <script type="text/javascript">
       var app = Elm.Main.fullscreen();
-      app.ports.messages.send(true);
+      app.ports.incrementCount.send(true);
+
+      app.ports.sendCount.subscribe(function(count) {
+        console.log("Received " + count);
+      });
 
       //var incrementClickCount = 0;
       //app.ports.increment.subscribe(function() {
