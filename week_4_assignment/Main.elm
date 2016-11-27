@@ -22,7 +22,7 @@ type alias Model =
 
 type Msg
     = NoOp
-    | Increment Bool
+    | Increment
     | SendCount
     | SetCount String
 
@@ -40,7 +40,7 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        Increment _ ->
+        Increment ->
             ( { model | count = model.count + 1 }
             , Cmd.none
             )
@@ -74,12 +74,17 @@ view model =
         ]
 
 
-port incrementCount : (Bool -> msg) -> Sub msg
+port incrementCount : ({} -> msg) -> Sub msg
 
 
 port sendCount : Int -> Cmd msg
 
 
+mapIncrement : {} -> Msg
+mapIncrement _ =
+    Increment
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    incrementCount Increment
+    incrementCount mapIncrement
