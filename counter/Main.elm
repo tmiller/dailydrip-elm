@@ -56,7 +56,7 @@ view model =
         ]
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     App.beginnerProgram
         { model = initialModel
