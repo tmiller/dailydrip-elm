@@ -3,16 +3,29 @@
     <title>Elm Ports Counter Example</title>
   </head>
   <body>
+    <div id="main"></div>
+    <div>
+      <button id="increment">Increment Count</button>
+      <ul id="counts"></ul>
+    </div>
     <script type="text/javascript" src="elm.js"></script>
     <script type="text/javascript">
-      var app = Elm.Main.fullscreen();
+      var node = document.getElementById("main");
+      var ul = document.getElementById("counts");
+      var incrementButton = document.getElementById("increment");
+
+      var app = Elm.Main.embed(node);
+      window.app = app;
 
       app.ports.sendCount.subscribe(function(count) {
-        console.log("Received " + count);
+        var newLi = document.createElement("li");
+        newLi.innerText = count;
+        ul.appendChild(newLi);
       });
 
-      window.app = app;
+      incrementButton.onclick = function() {
+        app.ports.incrementCount.send(true);
+      }
     </script>
-    <button onClick="app.ports.incrementCount.send(true)">Increment Count</button>
   </body>
 </html>
