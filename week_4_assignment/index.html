@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <title>Elm Ports Counter Example</title>
+  </head>
+  <body>
+    <script type="text/javascript" src="elm.js"></script>
+    <script type="text/javascript">
+      var app = Elm.Main.fullscreen();
+      app.ports.messages.send(true);
+
+      //var incrementClickCount = 0;
+      //app.ports.increment.subscribe(function() {
+      //  incrementClickCount += 1;
+      //  console.log("Increment has been clicked " + incrementClickCount + " times.");
+      //});
+
+      window.app = app;
+    </script>
+  </body>
+</html>
