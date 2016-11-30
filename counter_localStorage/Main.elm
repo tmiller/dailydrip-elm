@@ -14,6 +14,7 @@ type alias Model =
 type Msg
     = Increment
     | Decrement
+    | Set Int
     | NoOp
 
 
@@ -32,21 +33,32 @@ update msg model =
     case msg of
         Increment ->
             let
-                newCount =
-                    model.count + 1
+                newModel =
+                    { model
+                        | count = model.count + 1
+                        , increment = model.increment + 1
+                    }
             in
-                ( { model | count = newCount, increment = model.increment + 1 }
-                , Cmd.batch [ increment (), storage newCount ]
+                ( newModel
+                , Cmd.batch [ increment (), storage newModel.count ]
                 )
 
         Decrement ->
             let
-                newCount =
-                    model.count + 1
+                newModel =
+                    { model
+                        | count = model.count - 1
+                        , decrement = model.decrement + 1
+                    }
             in
-                ( { model | count = model.count - 1, decrement = model.decrement + 1 }
-                , storage newCount
+                ( newModel
+                , storage newModel.count
                 )
+
+        Set storageCount ->
+            ( { model | count = storageCount }
+            , Cmd.none
+            )
 
         NoOp ->
             ( model, Cmd.none )
@@ -72,9 +84,15 @@ port increment : () -> Cmd msg
 port storage : Int -> Cmd msg
 
 
+port storageInput : (Int -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    jsMsgs mapJsMsg
+    Sub.batch
+        [ jsMsgs mapJsMsg
+        , storageInput Set
+        ]
 
 
 mapJsMsg : Int -> Msg

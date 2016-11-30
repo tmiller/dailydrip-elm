@@ -5,6 +5,7 @@
   <body>
     <script type="text/javascript" src="elm.js"></script>
     <script type="text/javascript">
+      var currentCount = localStorage.getItem("count");
       var app = Elm.Main.fullscreen();
 
       //app.ports.jsMsgs.send(1);
@@ -14,6 +15,8 @@
         incrementClickCount += 1;
         console.log("Increment has been clicked " + incrementClickCount + " times.");
       });
+
+      app.ports.storageInput.send(Number(currentCount));
 
       app.ports.storage.subscribe(function(data) {
         localStorage.setItem("count", data);
