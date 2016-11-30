@@ -31,14 +31,22 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Increment ->
-            ( { model | count = model.count + 1, increment = model.increment + 1 }
-            , increment ()
-            )
+            let
+                newCount =
+                    model.count + 1
+            in
+                ( { model | count = newCount, increment = model.increment + 1 }
+                , Cmd.batch [ increment (), storage newCount ]
+                )
 
         Decrement ->
-            ( { model | count = model.count - 1, decrement = model.decrement + 1 }
-            , Cmd.none
-            )
+            let
+                newCount =
+                    model.count + 1
+            in
+                ( { model | count = model.count - 1, decrement = model.decrement + 1 }
+                , storage newCount
+                )
 
         NoOp ->
             ( model, Cmd.none )
@@ -59,6 +67,9 @@ port jsMsgs : (Int -> msg) -> Sub msg
 
 
 port increment : () -> Cmd msg
+
+
+port storage : Int -> Cmd msg
 
 
 subscriptions : Model -> Sub Msg
