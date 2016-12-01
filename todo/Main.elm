@@ -38,6 +38,7 @@ type Msg
     | Update String
     | Filter FilterState
     | Set Model
+    | LogDecodeError String
 
 
 newTodo : Todo
@@ -84,46 +85,76 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Add ->
-            ( { model
-                | todos = model.todo :: model.todos
-                , todo = { newTodo | identifier = model.nextIdentifier }
-                , nextIdentifier = model.nextIdentifier + 1
-              }
-            , Cmd.none
-            )
+            let
+                newModel =
+                    { model
+                        | todos = model.todo :: model.todos
+                        , todo = { newTodo | identifier = model.nextIdentifier }
+                        , nextIdentifier = model.nextIdentifier + 1
+                    }
+            in
+                ( newModel
+                , sendToStorage newModel
+                )
 
         Complete todo ->
-            ( updateTodo model todo True, Cmd.none )
+            let
+                newModel =
+                    updateTodo model todo True
+            in
+                ( newModel, sendToStorage newModel )
 
         Uncomplete todo ->
-            ( updateTodo model todo False, Cmd.none )
+            let
+                newModel =
+                    updateTodo model todo False
+            in
+                ( newModel, sendToStorage newModel )
 
         Delete todo ->
-            ( { model
-                | todos = List.filter (\mappedTodo -> todo.identifier /= mappedTodo.identifier) model.todos
-              }
-            , Cmd.none
-            )
+            let
+                newModel =
+                    { model
+                        | todos = List.filter (\mappedTodo -> todo.identifier /= mappedTodo.identifier) model.todos
+                    }
+            in
+                ( newModel
+                , sendToStorage newModel
+                )
 
         ClearCompleted ->
-            ( { model
-                | todos = List.filter (\todo -> not todo.completed) model.todos
-              }
-            , Cmd.none
-            )
+            let
+                newModel =
+                    { model
+                        | todos = List.filter (\todo -> not todo.completed) model.todos
+                    }
+            in
+                ( newModel
+                , sendToStorage newModel
+                )
 
         Update text ->
             let
                 todo =
                     model.todo
+
+                newModel =
+                    { model | todo = { todo | title = text } }
             in
-                ( { model | todo = { todo | title = text } }, Cmd.none )
+                ( newModel, sendToStorage newModel )
 
         Filter filterState ->
-            ( { model | filter = filterState }, Cmd.none )
+            let
+                newModel =
+                    { model | filter = filterState }
+            in
+                ( newModel, sendToStorage newModel )
 
         Set newModel ->
             ( newModel, Cmd.none )
+
+        LogDecodeError msg ->
+            ( Tuple.first init, error msg )
 
 
 enterKey : Int -> Json.Decode.Decoder Int
@@ -261,11 +292,102 @@ main =
         { init = init
         , update = update
         , view = view
-        , subscriptions = (\_ -> Sub.none)
+        , subscriptions = subscriptions
         }
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    storageInput mapStorageInput
+
+
+encodeModel : Model -> Json.Encode.Value
+encodeModel model =
+    Json.Encode.object
+        [ ( "todos", Json.Encode.list (List.map encodeTodo model.todos) )
+        , ( "todo", encodeTodo model.todo )
+        , ( "filter", encodeFilterState model.filter )
+        , ( "nextIdentifier", Json.Encode.int model.nextIdentifier )
+        ]
+
+
+encodeTodo : Todo -> Json.Encode.Value
+encodeTodo todo =
+    Json.Encode.object
+        [ ( "title", Json.Encode.string todo.title )
+        , ( "completed", Json.Encode.bool todo.completed )
+        , ( "editing", Json.Encode.bool todo.editing )
+        , ( "identifier", Json.Encode.int todo.identifier )
+        ]
+
+
+encodeFilterState : FilterState -> Json.Encode.Value
+encodeFilterState filterState =
+    Json.Encode.string <| toString filterState
+
+
+modelDecoder : Json.Decode.Decoder Model
+modelDecoder =
+    Json.Decode.map4 Model
+        (Json.Decode.field "todos" (Json.Decode.list todoDecoder))
+        (Json.Decode.field "todo" todoDecoder)
+        (Json.Decode.field "filter" filterStateDecoder)
+        (Json.Decode.field "nextIdentifier" Json.Decode.int)
+
+
+todoDecoder : Json.Decode.Decoder Todo
+todoDecoder =
+    Json.Decode.map4 Todo
+        (Json.Decode.field "title" Json.Decode.string)
+        (Json.Decode.field "completed" Json.Decode.bool)
+        (Json.Decode.field "editing" Json.Decode.bool)
+        (Json.Decode.field "identifier" Json.Decode.int)
+
+
+filterStateDecoder : Json.Decode.Decoder FilterState
+filterStateDecoder =
+    let
+        decodeToFilterState string =
+            case string of
+                "All" ->
+                    Json.Decode.succeed All
+
+                "Active" ->
+                    Json.Decode.succeed Active
+
+                "Completed" ->
+                    Json.Decode.succeed Completed
+
+                _ ->
+                    Json.Decode.fail <| "Not a valid FilterState: " ++ string
+    in
+        Json.Decode.string |> Json.Decode.andThen decodeToFilterState
+
+
+decodeModel : Json.Decode.Value -> Result String Model
+decodeModel modelJson =
+    Json.Decode.decodeValue modelDecoder modelJson
+
+
+mapStorageInput : Json.Decode.Value -> Msg
+mapStorageInput modelJson =
+    case (decodeModel modelJson) of
+        Ok model ->
+            Set model
+
+        Err msg ->
+            LogDecodeError msg
+
+
+sendToStorage : Model -> Cmd Msg
+sendToStorage model =
+    encodeModel model |> storage
 
 
 port storageInput : (Json.Decode.Value -> msg) -> Sub msg
 
 
 port storage : Json.Encode.Value -> Cmd msg
+
+
+port error : String -> Cmd msg

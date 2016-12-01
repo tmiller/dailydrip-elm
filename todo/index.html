@@ -11,11 +11,25 @@
       window.app = app;
 
       if (currentModel !== null) {
-        app.ports.storageInput.send(JSON.parse(currentModel));
+        try {
+          modelJson = JSON.parse(currentModel);
+          app.ports.storageInput.send(modelJson);
+        } catch (e) {
+          console.log(e);
+        }
       }
 
       app.ports.storage.subscribe(function(data){
-        localStorage.setItem("todo", data);
+        try {
+          modelString = JSON.stringify(data);
+          localStorage.setItem("todo", modelString);
+        } catch (e) {
+          console.log(e);
+        }
+      });
+
+      app.ports.error.subscribe(function(data){
+        console.log(data);
       });
     </script>
   </body>
