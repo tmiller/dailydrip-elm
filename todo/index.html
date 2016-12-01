@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <title>Elm TodoMVC</title>
+    <link href="assets/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <script type="text/javascript" src="elm.js"></script>
+    <script type="text/javascript">
+      var currentModel = localStorage.getItem("todo");
+      var app = Elm.Main.fullscreen();
+      window.app = app;
+
+      if (currentModel !== null) {
+        app.ports.storageInput.send(JSON.parse(currentModel));
+      }
+
+      app.ports.storage.subscribe(function(data){
+        localStorage.setItem("todo", data);
+      });
+    </script>
+  </body>
+</html>
