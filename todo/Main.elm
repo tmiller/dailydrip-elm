@@ -5,6 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (on, keyCode, onInput, onCheck, onClick)
 import Json.Decode
 import Json.Encode
+import Json.Decode.Pipeline as Pipeline
 
 
 type alias Todo =
@@ -328,20 +329,20 @@ encodeFilterState filterState =
 
 modelDecoder : Json.Decode.Decoder Model
 modelDecoder =
-    Json.Decode.map4 Model
-        (Json.Decode.field "todos" (Json.Decode.list todoDecoder))
-        (Json.Decode.field "todo" todoDecoder)
-        (Json.Decode.field "filter" filterStateDecoder)
-        (Json.Decode.field "nextIdentifier" Json.Decode.int)
+    Pipeline.decode Model
+        |> Pipeline.required "todos" (Json.Decode.list todoDecoder)
+        |> Pipeline.required "todo" todoDecoder
+        |> Pipeline.required "filter" filterStateDecoder
+        |> Pipeline.required "nextIdentifier" Json.Decode.int
 
 
 todoDecoder : Json.Decode.Decoder Todo
 todoDecoder =
-    Json.Decode.map4 Todo
-        (Json.Decode.field "title" Json.Decode.string)
-        (Json.Decode.field "completed" Json.Decode.bool)
-        (Json.Decode.field "editing" Json.Decode.bool)
-        (Json.Decode.field "identifier" Json.Decode.int)
+    Pipeline.decode Todo
+        |> Pipeline.required "title" Json.Decode.string
+        |> Pipeline.required "completed" Json.Decode.bool
+        |> Pipeline.required "editing" Json.Decode.bool
+        |> Pipeline.required "identifier" Json.Decode.int
 
 
 filterStateDecoder : Json.Decode.Decoder FilterState
