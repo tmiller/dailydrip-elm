@@ -1,10 +1,10 @@
-module Main exposing (..)
+port module Main exposing (..)
 
 import Html exposing (..)
-import Html
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, keyCode, onInput, onCheck, onClick)
-import Json.Decode as Json
+import Json.Decode
+import Json.Encode
 
 
 type alias Todo =
@@ -37,6 +37,7 @@ type Msg
     | ClearCompleted
     | Update String
     | Filter FilterState
+    | Set Model
 
 
 newTodo : Todo
@@ -48,19 +49,21 @@ newTodo =
     }
 
 
-initialModel : Model
-initialModel =
-    { todos =
-        [ { title = "Milk and Cookies"
-          , completed = True
-          , editing = False
-          , identifier = 1
-          }
-        ]
-    , todo = { newTodo | identifier = 2 }
-    , filter = All
-    , nextIdentifier = 3
-    }
+init : ( Model, Cmd Msg )
+init =
+    ( { todos =
+            [ { title = "Milk and Cookies"
+              , completed = True
+              , editing = False
+              , identifier = 1
+              }
+            ]
+      , todo = { newTodo | identifier = 2 }
+      , filter = All
+      , nextIdentifier = 3
+      }
+    , Cmd.none
+    )
 
 
 updateTodo : Model -> Todo -> Bool -> Model
@@ -77,54 +80,63 @@ updateTodo model todo complete =
         }
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Add ->
-            { model
+            ( { model
                 | todos = model.todo :: model.todos
                 , todo = { newTodo | identifier = model.nextIdentifier }
                 , nextIdentifier = model.nextIdentifier + 1
-            }
+              }
+            , Cmd.none
+            )
 
         Complete todo ->
-            updateTodo model todo True
+            ( updateTodo model todo True, Cmd.none )
 
         Uncomplete todo ->
-            updateTodo model todo False
+            ( updateTodo model todo False, Cmd.none )
 
         Delete todo ->
-            { model
+            ( { model
                 | todos = List.filter (\mappedTodo -> todo.identifier /= mappedTodo.identifier) model.todos
-            }
+              }
+            , Cmd.none
+            )
 
         ClearCompleted ->
-            { model
+            ( { model
                 | todos = List.filter (\todo -> not todo.completed) model.todos
-            }
+              }
+            , Cmd.none
+            )
 
         Update text ->
             let
                 todo =
                     model.todo
             in
-                { model | todo = { todo | title = text } }
+                ( { model | todo = { todo | title = text } }, Cmd.none )
 
         Filter filterState ->
-            { model | filter = filterState }
+            ( { model | filter = filterState }, Cmd.none )
+
+        Set newModel ->
+            ( newModel, Cmd.none )
 
 
-enterKey : Int -> Json.Decoder Int
+enterKey : Int -> Json.Decode.Decoder Int
 enterKey code =
     if code == 13 then
-        Json.succeed code
+        Json.Decode.succeed code
     else
-        Json.fail "not the enter key"
+        Json.Decode.fail "not the enter key"
 
 
 onEnterKeyPress : Msg -> Attribute Msg
 onEnterKeyPress msg =
-    on "keypress" (Json.map (always msg) (keyCode |> Json.andThen enterKey))
+    on "keypress" (Json.Decode.map (always msg) (keyCode |> Json.Decode.andThen enterKey))
 
 
 filteredTodos : Model -> List Todo
@@ -246,11 +258,18 @@ filterItemView model filterState =
 
 main : Program Never Model Msg
 main =
-    Html.beginnerProgram
-        { model = initialModel
+    Html.program
+        { init = init
         , update = update
         , view = view
+        , subscriptions = (\_ -> Sub.none)
         }
+
+
+port storageInput : (Json.Decode.Value -> msg) -> Sub msg
+
+
+port storage : Json.Encode.Value -> Cmd msg
 
 
 styles : String
